@@ -1,5 +1,3 @@
-'use strict';
-
 var ctx = document.getElementById('mainCanvas').getContext('2d');
 var cte = document.getElementById('mainCanvas');
 //calculating grid dimensions from canvas size; TODO: grid units as variable
@@ -29,7 +27,6 @@ var dirs = 'nesw';
 
 function drawgrid() {
   for (var i = 0; i <= gridx; i++) {
-
     ctx.beginPath();
     ctx.moveTo(i * 32, 0);
     ctx.lineTo(i * 32, cte.height);
@@ -37,7 +34,6 @@ function drawgrid() {
     ctx.stroke();
   };
   for (var i = 0; i <= gridy; i++) {
-
     ctx.beginPath();
     ctx.moveTo(0, i * 32);
     ctx.lineTo(cte.width, i * 32);
@@ -137,7 +133,6 @@ function moveTank(tankObj, speed) {
         //tank.posy = tank.posy + dy;
         //console.log(tankObj.posx, tankObj.posy);
         //drawgrid();
-
         ctx.fillStyle = "white";
         ctx.fillRect(oldX, oldY, 32, 32)
         ctx.drawImage(img, spriteposX, spriteposY, 32, 32, tankObj.posx + dx, tankObj.posy + dy, 32, 32);
@@ -149,13 +144,9 @@ function moveTank(tankObj, speed) {
         //ctx.fillText(tankName, tankObj.posx + dx + 6, tankObj.posy + dy + 10);
         oldX = tankObj.posx + dx;
         oldY = tankObj.posy + dy;
-
         i++;
         // Continue the loop in 3s
-
         setTimeout(nextFrame, 10);
-
-
       } else {
         tankObj.moving = false;
         tankObj.posx = tankObj.posx + dx;
@@ -164,7 +155,6 @@ function moveTank(tankObj, speed) {
         if (tankObj.bot == true) {
           tankObj.moveRand();
         }
-
       }
     }
     // Start the loop
@@ -172,37 +162,35 @@ function moveTank(tankObj, speed) {
   }
 }
 document.onkeydown = function(e) {
-  if (me.moving == false) {
-    console.log('key down');
-    console.log(e.keyCode);
-    switch (e.keyCode) {
-      case 38:
-        me.direction = 'n';
-        moveTank(me);
-        break;
-      case 40:
-        me.direction = 's';
-        moveTank(me);
-        break;
-      case 37:
-        me.direction = 'w';
-        moveTank(me);
-        break;
-      case 39:
-        me.direction = 'e';
-        moveTank(me);
-        break;
+    if (me.moving == false) {
+      console.log('key down');
+      console.log(e.keyCode);
+      switch (e.keyCode) {
+        case 38:
+          me.direction = 'n';
+          moveTank(me);
+          break;
+        case 40:
+          me.direction = 's';
+          moveTank(me);
+          break;
+        case 37:
+          me.direction = 'w';
+          moveTank(me);
+          break;
+        case 39:
+          me.direction = 'e';
+          moveTank(me);
+          break;
+      }
     }
   }
-}
-
-//function randMove(tankObj) {
-//  var rndDirection = Math.round(Math.random() * 3)
-//  var dirs = ['n', 'e', 's', 'w'];
-//  moveTank(dirs[rndDirection], tankObj);
-//  tankObj.bot = true;
-//}
-
+  //function randMove(tankObj) {
+  //  var rndDirection = Math.round(Math.random() * 3)
+  //  var dirs = ['n', 'e', 's', 'w'];
+  //  moveTank(dirs[rndDirection], tankObj);
+  //  tankObj.bot = true;
+  //}
 function tankShoot(tankObj) {
   function nextFrame() {
     if (i < 33) {
@@ -212,3 +200,5 @@ function tankShoot(tankObj) {
   }
   setTimeout(nextFrame, 0);
 }
+
+function drawBrick(gridx, gridy) {}
