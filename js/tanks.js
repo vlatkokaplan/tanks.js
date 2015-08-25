@@ -1,15 +1,28 @@
 'use strict';
+
 var ctx = document.getElementById('mainCanvas').getContext('2d');
 var cte = document.getElementById('mainCanvas');
+//calculating grid dimensions from canvas size; TODO: grid units as variable
 var gridx = Math.floor(cte.width / 32);
 var gridy = Math.floor(cte.height / 32);
+//random start position for all tanks; should be removed
 var startx = Math.round(Math.random() * gridx);
 var starty = Math.round(Math.random() * gridy);
+//your tank and 3 bots
+var me, tank1, tank2, tank3;
 var img = new Image();
+//just names in array
 var names = ['Wilbur', 'Cordell', 'Terrell', 'Rich', 'Sol', 'Bertram', 'Luis', 'Ted', 'Elroy', 'Bernie'];
 img.onload = function() {
-  //ctx.drawImage(img, 0, 96, 32, 32, startx * 32, starty * 32, 32, 32);
   drawgrid();
+  me = new tank();
+  me.initDraw();
+  tank1 = new tank();
+  tank1.moveRand();
+  tank2 = new tank();
+  tank2.moveRand();
+  tank3 = new tank();
+  tank3.moveRand();
 };
 img.src = 'img/tank1.png';
 var dirs = 'nesw';
@@ -33,7 +46,7 @@ function drawgrid() {
   };
 }
 var tank = function() {
-  this.randomness = Math.floor(Math.random()*7+1);
+  this.randomness = Math.floor(Math.random() * 7 + 1);
   this.posx = startx * 32;
   this.posy = starty * 32;
   this.moving = false;
@@ -45,30 +58,30 @@ var tank = function() {
   }
   this.moveRand = function() {
     var changeDir = Math.round(Math.random() * 2);
-    var rndDirection = Math.round(Math.random() *this.randomness);
+    var rndDirection = Math.round(Math.random() * this.randomness);
     var exclude = '';
     this.dirsEx = dirs;
-    if(this.posy-32/32 <= 0) {
+    if (this.posy - 32 / 32 <= 0) {
       exclude = 'n';
       changeDir = 0;
-      this.dirsEx = this.dirsEx.replace(exclude,'');
+      this.dirsEx = this.dirsEx.replace(exclude, '');
     }
-    if((this.posx+32)/32 >= gridx) {
+    if ((this.posx + 32) / 32 >= gridx) {
       exclude = 'e';
       changeDir = 0;
-      this.dirsEx = this.dirsEx.replace(exclude,'');
+      this.dirsEx = this.dirsEx.replace(exclude, '');
     }
-    if(this.posx-32/32 <= 0) {
+    if (this.posx - 32 / 32 <= 0) {
       exclude = 'w';
       changeDir = 0;
-      this.dirsEx = this.dirsEx.replace(exclude,'');
+      this.dirsEx = this.dirsEx.replace(exclude, '');
     }
-     if((this.posy+32)/32 >= gridy) {
+    if ((this.posy + 32) / 32 >= gridy) {
       exclude = 's';
       changeDir = 0;
-      this.dirsEx = this.dirsEx.replace(exclude,'');
+      this.dirsEx = this.dirsEx.replace(exclude, '');
     }
-    var rndDirection = Math.floor(Math.random() *this.dirsEx.length);
+    var rndDirection = Math.floor(Math.random() * this.dirsEx.length);
     if (changeDir == 0) {
       this.direction = this.dirsEx[rndDirection];
       //console.log( (this.posx+32)/32);
@@ -159,21 +172,25 @@ function moveTank(tankObj, speed) {
   }
 }
 document.onkeydown = function(e) {
-  if (tank.moving == false) {
+  if (me.moving == false) {
     console.log('key down');
     console.log(e.keyCode);
     switch (e.keyCode) {
       case 38:
-        moveTank('n');
+        me.direction = 'n';
+        moveTank(me);
         break;
       case 40:
-        moveTank('s');
+        me.direction = 's';
+        moveTank(me);
         break;
       case 37:
-        moveTank('w');
+        me.direction = 'w';
+        moveTank(me);
         break;
       case 39:
-        moveTank('e');
+        me.direction = 'e';
+        moveTank(me);
         break;
     }
   }
@@ -187,11 +204,11 @@ document.onkeydown = function(e) {
 //}
 
 function tankShoot(tankObj) {
-
+  function nextFrame() {
+    if (i < 33) {
+      i++
+      setTimeout(nextFrame, 10)
+    }
+  }
+  setTimeout(nextFrame, 0);
 }
-var tank1 = new tank();
-tank1.moveRand();
-var tank2 = new tank();
-tank2.moveRand();
-var tank3 = new tank();
-tank3.moveRand();
