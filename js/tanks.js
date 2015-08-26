@@ -1,5 +1,7 @@
 var ctx = document.getElementById('mainCanvas').getContext('2d');
 var cte = document.getElementById('mainCanvas');
+var sbe = document.getElementById('spriteBuffer');
+var sbx = sbe.getContext('2d');
 //calculating grid dimensions from canvas size; TODO: grid units as variable
 var gridx = Math.floor(cte.width / 32);
 var gridy = Math.floor(cte.height / 32);
@@ -8,10 +10,22 @@ var startx = Math.round(Math.random() * gridx);
 var starty = Math.round(Math.random() * gridy);
 //your tank and 3 bots
 var me, tank1, tank2, tank3;
-var img = new Image();
+var tankspr = new Image();
+tankspr.src = 'img/tank1.png';
 //just names in array
 var names = ['Wilbur', 'Cordell', 'Terrell', 'Rich', 'Sol', 'Bertram', 'Luis', 'Ted', 'Elroy', 'Bernie'];
-img.onload = function() {
+tankspr.onload = function() {
+  sbx.drawImage(tankspr, 0, 0);
+  sbx.fillStyle = "white";
+  sbx.fillRect(32, 0, 32, 32)
+  sbx.beginPath();
+  sbx.fillStyle = 'green';
+  sbx.arc(48, 48, 5, 0, 2 * Math.PI, false);
+  sbx.fill();
+  sbx.beginPath();
+  sbx.fillStyle = 'white';
+  sbx.arc(48, 80, 6, 0, 2 * Math.PI, false);
+  sbx.fill();
   drawgrid();
   me = new tank();
   me.initDraw();
@@ -22,7 +36,7 @@ img.onload = function() {
   tank3 = new tank();
   tank3.moveRand();
 };
-img.src = 'img/tank1.png';
+
 var dirs = 'nesw';
 
 function drawgrid() {
@@ -49,8 +63,9 @@ var tank = function() {
   this.bot = false;
   this.direction = dirs[Math.round(Math.random() * 3)];
   this.name = names[Math.round(Math.random() * names.length - 1)];
+  this.speed = 4;
   this.initDraw = function() {
-    ctx.drawImage(img, 0, 96, 32, 32, startx * 32, starty * 32, 32, 32);
+    ctx.drawImage(sbe, 0, 96, 32, 32, startx * 32, starty * 32, 32, 32);
   }
   this.moveRand = function() {
     var changeDir = Math.round(Math.random() * 2);
@@ -84,6 +99,11 @@ var tank = function() {
     }
     moveTank(this);
     this.bot = true;
+  }
+  this.shoot = function() {
+    var randomFire = Math.round(Math.random() * 11);
+    if (randomFire == 5)
+      tankShoot(this, 6);
   }
 }
 
@@ -133,9 +153,10 @@ function moveTank(tankObj, speed) {
         //tank.posy = tank.posy + dy;
         //console.log(tankObj.posx, tankObj.posy);
         //drawgrid();
-        ctx.fillStyle = "white";
-        ctx.fillRect(oldX, oldY, 32, 32)
-        ctx.drawImage(img, spriteposX, spriteposY, 32, 32, tankObj.posx + dx, tankObj.posy + dy, 32, 32);
+        //ctx.fillStyle = "white";
+        //ctx.fillRect(oldX, oldY, 32, 32)
+        ctx.drawImage(sbe, 32, 0, 32, 32, oldX, oldY, 32, 32);
+        ctx.drawImage(sbe, spriteposX, spriteposY, 32, 32, tankObj.posx + dx, tankObj.posy + dy, 32, 32);
         //ctx.font = "bold 12px Arial";
         //ctx.fillStyle = "white";
         //ctx.fillText(tankName, oldX + 6, oldY + 10);
@@ -144,9 +165,9 @@ function moveTank(tankObj, speed) {
         //ctx.fillText(tankName, tankObj.posx + dx + 6, tankObj.posy + dy + 10);
         oldX = tankObj.posx + dx;
         oldY = tankObj.posy + dy;
-        i++;
+        i = i + tankObj.speed;
         // Continue the loop in 3s
-        setTimeout(nextFrame, 10);
+        window.requestAnimationFrame(nextFrame);
       } else {
         tankObj.moving = false;
         tankObj.posx = tankObj.posx + dx;
@@ -154,17 +175,18 @@ function moveTank(tankObj, speed) {
         //console.log(tankObj.posx / 32, tankObj.posy / 32, tankObj.posx, tankObj.posy, dx, dy);
         if (tankObj.bot == true) {
           tankObj.moveRand();
+          tankObj.shoot();
         }
       }
     }
     // Start the loop
-    setTimeout(nextFrame, 0);
+    nextFrame();
   }
 }
 document.onkeydown = function(e) {
     if (me.moving == false) {
-      console.log('key down');
-      console.log(e.keyCode);
+      //console.log('key down');
+      //console.log(e.keyCode);
       switch (e.keyCode) {
         case 38:
           me.direction = 'n';
@@ -182,6 +204,8 @@ document.onkeydown = function(e) {
           me.direction = 'e';
           moveTank(me);
           break;
+        case 32:
+          tankShoot(me, 6);
       }
     }
   }
@@ -191,14 +215,57 @@ document.onkeydown = function(e) {
   //  moveTank(dirs[rndDirection], tankObj);
   //  tankObj.bot = true;
   //}
-function tankShoot(tankObj) {
+function tankShoot(tankObj, speed) {
+  var i = 0;
+  var shootPointX = tankObj.posx;
+  var shootPointY = tankObj.posy;
+  var direction = tankObj.direction;
+  var oldX = shootPointX;
+  var oldY = shootPointY;
+  var displacementX;
+  var displacementY;
+
   function nextFrame() {
-    if (i < 33) {
-      i++
-      setTimeout(nextFrame, 10)
+    if (direction == 'n') {
+      dx = 0;
+      dy = 0 - i;
+      displacementX = 0;
+      displacementY = -19;
     }
+    if (direction == 's') {
+      dx = 0;
+      dy = 0 + i;
+      displacementX = 0;
+      displacementY = 19;
+    }
+    if (direction == 'e') {
+      dx = 0 + i;
+      dy = 0;
+      displacementX = 19;
+      displacementY = 0;
+    }
+    if (direction == 'w') {
+      dx = 0 - i;
+      dy = 0;
+      displacementX = -19;
+      displacementY = 0;
+    }
+    ctx.drawImage(sbe, 32, 64, 32, 32, oldX + displacementX, oldY + displacementY, 32, 32);
+    ctx.drawImage(sbe, 32, 32, 32, 32, shootPointX + displacementX + dx, shootPointY + displacementY + dy, 32, 32);
+    oldX = shootPointX + dx;
+    oldY = shootPointY + dy;
+    i = i + speed;
+    if (Math.floor(oldX / 32) == Math.floor(me.posx / 32) && Math.floor(oldY / 32) == Math.floor(me.posy / 32)) {
+      console.log('u ded');
+      oldX = -1;
+      oldX = -1;
+    }
+    if (oldY > -1 && oldX > -1 && oldY < gridy * 32 && oldX < gridx * 32) {
+      requestAnimationFrame(nextFrame);
+    }
+
   }
-  setTimeout(nextFrame, 0);
+  nextFrame();
 }
 
 function drawBrick(gridx, gridy) {}
