@@ -14,12 +14,13 @@ var tankspr = new Image();
 tankspr.src = 'img/tank1.png';
 //just names in array
 var names = ['Wilbur', 'Cordell', 'Terrell', 'Rich', 'Sol', 'Bertram', 'Luis', 'Ted', 'Elroy', 'Bernie'];
+var tanksArr = [];
 tankspr.onload = function() {
   sbx.drawImage(tankspr, 0, 0);
   sbx.fillStyle = "white";
   sbx.fillRect(32, 0, 32, 32)
   sbx.beginPath();
-  sbx.fillStyle = 'green';
+  sbx.fillStyle = 'black';
   sbx.arc(48, 48, 5, 0, 2 * Math.PI, false);
   sbx.fill();
   sbx.beginPath();
@@ -29,12 +30,14 @@ tankspr.onload = function() {
   drawgrid();
   me = new tank();
   me.initDraw();
+  tanksArr.push(me);
   tank1 = new tank();
   tank1.moveRand();
-  tank2 = new tank();
-  tank2.moveRand();
-  tank3 = new tank();
-  tank3.moveRand();
+  tanksArr.push(tank1);
+  //tank2 = new tank();
+  //tank2.moveRand();
+  //tank3 = new tank();
+  //tank3.moveRand();
 };
 
 var dirs = 'nesw';
@@ -97,9 +100,12 @@ var tank = function() {
       this.direction = this.dirsEx[rndDirection];
       //console.log( (this.posx+32)/32);
     }
-    moveTank(this);
+    if (this.stop == false) {
+      moveTank(this);
+    }
     this.bot = true;
   }
+  this.stop = false;
   this.shoot = function() {
     var randomFire = Math.round(Math.random() * 11);
     if (randomFire == 5)
@@ -149,20 +155,8 @@ function moveTank(tankObj, speed) {
           spriteposX = 0;
           spriteposY = 32;
         }
-        //tank.posx = tank.posx+dx;
-        //tank.posy = tank.posy + dy;
-        //console.log(tankObj.posx, tankObj.posy);
-        //drawgrid();
-        //ctx.fillStyle = "white";
-        //ctx.fillRect(oldX, oldY, 32, 32)
         ctx.drawImage(sbe, 32, 0, 32, 32, oldX, oldY, 32, 32);
         ctx.drawImage(sbe, spriteposX, spriteposY, 32, 32, tankObj.posx + dx, tankObj.posy + dy, 32, 32);
-        //ctx.font = "bold 12px Arial";
-        //ctx.fillStyle = "white";
-        //ctx.fillText(tankName, oldX + 6, oldY + 10);
-        //ctx.font = "bold 10px Arial";
-        //ctx.fillStyle = "black";
-        //ctx.fillText(tankName, tankObj.posx + dx + 6, tankObj.posy + dy + 10);
         oldX = tankObj.posx + dx;
         oldY = tankObj.posy + dy;
         i = i + tankObj.speed;
@@ -172,7 +166,6 @@ function moveTank(tankObj, speed) {
         tankObj.moving = false;
         tankObj.posx = tankObj.posx + dx;
         tankObj.posy = tankObj.posy + dy;
-        //console.log(tankObj.posx / 32, tankObj.posy / 32, tankObj.posx, tankObj.posy, dx, dy);
         if (tankObj.bot == true) {
           tankObj.moveRand();
           tankObj.shoot();
@@ -185,8 +178,6 @@ function moveTank(tankObj, speed) {
 }
 document.onkeydown = function(e) {
     if (me.moving == false) {
-      //console.log('key down');
-      //console.log(e.keyCode);
       switch (e.keyCode) {
         case 38:
           me.direction = 'n';
@@ -209,12 +200,6 @@ document.onkeydown = function(e) {
       }
     }
   }
-  //function randMove(tankObj) {
-  //  var rndDirection = Math.round(Math.random() * 3)
-  //  var dirs = ['n', 'e', 's', 'w'];
-  //  moveTank(dirs[rndDirection], tankObj);
-  //  tankObj.bot = true;
-  //}
 function tankShoot(tankObj, speed) {
   var i = 0;
   var shootPointX = tankObj.posx;
@@ -230,24 +215,24 @@ function tankShoot(tankObj, speed) {
       dx = 0;
       dy = 0 - i;
       displacementX = 0;
-      displacementY = -19;
+      displacementY = -22;
     }
     if (direction == 's') {
       dx = 0;
       dy = 0 + i;
       displacementX = 0;
-      displacementY = 19;
+      displacementY = 22;
     }
     if (direction == 'e') {
       dx = 0 + i;
       dy = 0;
-      displacementX = 19;
+      displacementX = 22;
       displacementY = 0;
     }
     if (direction == 'w') {
       dx = 0 - i;
       dy = 0;
-      displacementX = -19;
+      displacementX = -22;
       displacementY = 0;
     }
     ctx.drawImage(sbe, 32, 64, 32, 32, oldX + displacementX, oldY + displacementY, 32, 32);
@@ -255,10 +240,11 @@ function tankShoot(tankObj, speed) {
     oldX = shootPointX + dx;
     oldY = shootPointY + dy;
     i = i + speed;
-    if (Math.floor(oldX / 32) == Math.floor(me.posx / 32) && Math.floor(oldY / 32) == Math.floor(me.posy / 32)) {
+    if (Math.floor(oldX / 32) == Math.floor(me.posx / 32) && Math.floor(oldY / 32) == Math.floor(me.posy / 32) && tankObj.bot == true) {
       console.log('u ded');
-      oldX = -1;
-      oldX = -1;
+      ctx.drawImage(sbe, 32, 64, 32, 32, shootPointX + displacementX + dx, shootPointY + displacementY + dy, 32, 32);
+      oldX = -2;
+      oldY = -2;
     }
     if (oldY > -1 && oldX > -1 && oldY < gridy * 32 && oldX < gridx * 32) {
       requestAnimationFrame(nextFrame);
