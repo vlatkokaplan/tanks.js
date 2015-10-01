@@ -1,8 +1,10 @@
-var ctx = document.getElementById('mainCanvas').getContext('2d');
 var cte = document.getElementById('mainCanvas');
+var ctx = cte.getContext('2d');
 var sbe = document.getElementById('spriteBuffer');
 var sbx = sbe.getContext('2d');
 //calculating grid dimensions from canvas size; TODO: grid units as variable
+cte.width = document.body.clientWidth
+cte.height = document.body.clientHeight
 var gridx = Math.floor(cte.width / 32);
 var gridy = Math.floor(cte.height / 32);
 //random start position for all tanks; should be removed
@@ -10,13 +12,32 @@ var startx = Math.round(Math.random() * gridx);
 var starty = Math.round(Math.random() * gridy);
 //your tank and 3 bots
 var me, tank1, tank2, tank3;
-var tankspr = new Image();
-tankspr.src = 'img/tank1.png';
-//just names in array
+var spriteSources = {
+  tankspr: "img/tank1.png",
+  brickspr: "img/brick.png"
+}
+var loadedImages = {};
+(function() {
+  for (var src in spriteSources) {
+    var imgCount = 0;
+    loadedImages[src] = new Image();
+    loadedImages[src].onload = function() {
+      imgCount++;
+      console.log(imgCount)
+      if (imgCount == Object.keys(spriteSources).length) {
+        spritesLoaded();
+        console.log("ok")
+      }
+    }
+    loadedImages[src].src = spriteSources[src];
+  }
+})();
+
 var names = ['Wilbur', 'Cordell', 'Terrell', 'Rich', 'Sol', 'Bertram', 'Luis', 'Ted', 'Elroy', 'Bernie'];
 var tanksArr = [];
-tankspr.onload = function() {
-  sbx.drawImage(tankspr, 0, 0);
+//loadSprites();
+function spritesLoaded() {
+  sbx.drawImage(loadedImages.tankspr, 0, 0);
   sbx.fillStyle = "white";
   sbx.fillRect(32, 0, 32, 32)
   sbx.beginPath();
@@ -29,15 +50,16 @@ tankspr.onload = function() {
   sbx.fill();
   drawgrid();
   me = new tank();
-  me.initDraw();
-  tanksArr.push(me);
+  me.init();
   tank1 = new tank();
-  tank1.moveRand();
-  tanksArr.push(tank1);
-  //tank2 = new tank();
-  //tank2.moveRand();
-  //tank3 = new tank();
-  //tank3.moveRand();
+  tank1.bot = true;
+  tank1.init();
+  tank2 = new tank();
+  tank2.bot = true;
+  tank2.init();
+  tank3 = new tank();
+  tank3.bot = true;
+  tank3.init();
 };
 
 var dirs = 'nesw';
@@ -48,14 +70,18 @@ function drawgrid() {
     ctx.moveTo(i * 32, 0);
     ctx.lineTo(i * 32, cte.height);
     ctx.strokeStyle = '1px Black';
-    ctx.stroke();
+    //ctx.stroke();
+    for (var l = 0; l <= gridy; l++) {
+      ctx.drawImage(loadedImages.brickspr, i * 32, l * 32);
+    }
   };
   for (var i = 0; i <= gridy; i++) {
     ctx.beginPath();
     ctx.moveTo(0, i * 32);
     ctx.lineTo(cte.width, i * 32);
     ctx.strokeStyle = 'Black';
-    ctx.stroke();
+    //ctx.stroke();
+    ctx.drawImage(loadedImages.brickspr, 0, i * 32);
   };
 }
 var tank = function() {
@@ -67,8 +93,12 @@ var tank = function() {
   this.direction = dirs[Math.round(Math.random() * 3)];
   this.name = names[Math.round(Math.random() * names.length - 1)];
   this.speed = 4;
-  this.initDraw = function() {
+  this.init = function() {
     ctx.drawImage(sbe, 0, 96, 32, 32, startx * 32, starty * 32, 32, 32);
+    if (this.bot == true) {
+      this.moveRand();
+    }
+    tanksArr.push(this);
   }
   this.moveRand = function() {
     var changeDir = Math.round(Math.random() * 2);
@@ -177,29 +207,30 @@ function moveTank(tankObj, speed) {
   }
 }
 document.onkeydown = function(e) {
-    if (me.moving == false) {
-      switch (e.keyCode) {
-        case 38:
-          me.direction = 'n';
-          moveTank(me);
-          break;
-        case 40:
-          me.direction = 's';
-          moveTank(me);
-          break;
-        case 37:
-          me.direction = 'w';
-          moveTank(me);
-          break;
-        case 39:
-          me.direction = 'e';
-          moveTank(me);
-          break;
-        case 32:
-          tankShoot(me, 6);
-      }
+  if (me.moving == false) {
+    switch (e.keyCode) {
+      case 38:
+        me.direction = 'n';
+        moveTank(me);
+        break;
+      case 40:
+        me.direction = 's';
+        moveTank(me);
+        break;
+      case 37:
+        me.direction = 'w';
+        moveTank(me);
+        break;
+      case 39:
+        me.direction = 'e';
+        moveTank(me);
+        break;
+      case 32:
+        tankShoot(me, 6);
     }
   }
+}
+
 function tankShoot(tankObj, speed) {
   var i = 0;
   var shootPointX = tankObj.posx;
