@@ -12,6 +12,7 @@ var startx = Math.round(Math.random() * gridx);
 var starty = Math.round(Math.random() * gridy);
 //your tank and 3 bots
 var me, tank1, tank2, tank3;
+var bricksArr = [];
 var spriteSources = {
   tankspr: "img/tank1.png",
   brickspr: "img/brick.png"
@@ -23,10 +24,8 @@ var loadedImages = {};
     loadedImages[src] = new Image();
     loadedImages[src].onload = function() {
       imgCount++;
-      console.log(imgCount)
       if (imgCount == Object.keys(spriteSources).length) {
         spritesLoaded();
-        console.log("ok")
       }
     }
     loadedImages[src].src = spriteSources[src];
@@ -35,7 +34,7 @@ var loadedImages = {};
 
 var names = ['Wilbur', 'Cordell', 'Terrell', 'Rich', 'Sol', 'Bertram', 'Luis', 'Ted', 'Elroy', 'Bernie'];
 var tanksArr = [];
-//loadSprites();
+
 function spritesLoaded() {
   sbx.drawImage(loadedImages.tankspr, 0, 0);
   sbx.fillStyle = "white";
@@ -49,6 +48,12 @@ function spritesLoaded() {
   sbx.arc(48, 80, 6, 0, 2 * Math.PI, false);
   sbx.fill();
   drawgrid();
+};
+
+
+var dirs = 'nesw';
+
+function initTanks() {
   me = new tank();
   me.init();
   tank1 = new tank();
@@ -60,9 +65,8 @@ function spritesLoaded() {
   tank3 = new tank();
   tank3.bot = true;
   tank3.init();
-};
-
-var dirs = 'nesw';
+  drawBricks();
+}
 
 function drawgrid() {
   for (var i = 0; i <= gridx; i++) {
@@ -71,8 +75,10 @@ function drawgrid() {
     ctx.lineTo(i * 32, cte.height);
     ctx.strokeStyle = '1px Black';
     //ctx.stroke();
+    bricksArr[i] = [];
     for (var l = 0; l <= gridy; l++) {
-      ctx.drawImage(loadedImages.brickspr, i * 32, l * 32);
+      //ctx.drawImage(loadedImages.brickspr, i * 32, l * 32);
+      bricksArr[i][l] = 1;
     }
   };
   for (var i = 0; i <= gridy; i++) {
@@ -81,46 +87,70 @@ function drawgrid() {
     ctx.lineTo(cte.width, i * 32);
     ctx.strokeStyle = 'Black';
     //ctx.stroke();
-    ctx.drawImage(loadedImages.brickspr, 0, i * 32);
+    //ctx.drawImage(loadedImages.brickspr, 0, i * 32);
+  };
+  initTanks();
+}
+
+function drawBricks() {
+  //ctx.clearRect(0, 0, cte.width, cte.height);
+  for (var i = bricksArr.length - 1; i >= 0; i--) {
+    for (var j = bricksArr[i].length - 1; j >= 0; j--) {
+      if (bricksArr[i][j] == 1) {
+        ctx.drawImage(loadedImages.brickspr, i * 32, j * 32);
+      };
+    };
   };
 }
 var tank = function() {
   this.randomness = Math.floor(Math.random() * 7 + 1);
-  this.posx = startx * 32;
-  this.posy = starty * 32;
+  this.startx = Math.round(Math.random() * gridx);
+  this.starty = Math.round(Math.random() * gridy);
+  this.posx = this.startx * 32;
+  this.posy = this.starty * 32;
   this.moving = false;
   this.bot = false;
   this.direction = dirs[Math.round(Math.random() * 3)];
   this.name = names[Math.round(Math.random() * names.length - 1)];
   this.speed = 4;
   this.init = function() {
-    ctx.drawImage(sbe, 0, 96, 32, 32, startx * 32, starty * 32, 32, 32);
+    ctx.drawImage(sbe, 0, 96, 32, 32, this.startx * 32, this.starty * 32, 32, 32);
+    tanksArr.push(this);
+    bricksArr[this.startx][this.starty] = 0;
+    bricksArr[this.startx + 1][this.starty + 1] = 0;
+    bricksArr[this.startx - 1][this.starty - 1] = 0;
+    bricksArr[this.startx][this.starty - 1] = 0;
+    bricksArr[this.startx - 1][this.starty] = 0;
+    bricksArr[this.startx][this.starty + 1] = 0;
+    bricksArr[this.startx + 1][this.starty] = 0;
+    bricksArr[this.startx + 1][this.starty - 1] = 0;
+    bricksArr[this.startx - 1][this.starty + 1] = 0;
+    bricksArr[0][0] = 0;
     if (this.bot == true) {
       this.moveRand();
     }
-    tanksArr.push(this);
   }
   this.moveRand = function() {
     var changeDir = Math.round(Math.random() * 2);
     var rndDirection = Math.round(Math.random() * this.randomness);
     var exclude = '';
     this.dirsEx = dirs;
-    if (this.posy - 32 / 32 <= 0) {
+    if (this.posy - 32 / 32 <= 0 || bricksArr[((this.posx) / 32)][(this.posy - 32) / 32] == 1) {
       exclude = 'n';
       changeDir = 0;
       this.dirsEx = this.dirsEx.replace(exclude, '');
     }
-    if ((this.posx + 32) / 32 >= gridx) {
+    if ((this.posx + 32) / 32 >= gridx || bricksArr[((this.posx + 32) / 32)][this.posy / 32] == 1) {
       exclude = 'e';
       changeDir = 0;
       this.dirsEx = this.dirsEx.replace(exclude, '');
     }
-    if (this.posx - 32 / 32 <= 0) {
+    if (this.posx - 32 / 32 <= 0 || bricksArr[((this.posx - 32) / 32)][this.posy / 32] == 1) {
       exclude = 'w';
       changeDir = 0;
       this.dirsEx = this.dirsEx.replace(exclude, '');
     }
-    if ((this.posy + 32) / 32 >= gridy) {
+    if ((this.posy + 32) / 32 >= gridy || bricksArr[((this.posx) / 32)][(this.posy + 32) / 32] == 1) {
       exclude = 's';
       changeDir = 0;
       this.dirsEx = this.dirsEx.replace(exclude, '');
@@ -271,8 +301,11 @@ function tankShoot(tankObj, speed) {
     oldX = shootPointX + dx;
     oldY = shootPointY + dy;
     i = i + speed;
-    if (Math.floor(oldX / 32) == Math.floor(me.posx / 32) && Math.floor(oldY / 32) == Math.floor(me.posy / 32) && tankObj.bot == true) {
+    if (Math.floor(oldX / 32) == Math.floor(me.posx / 32) && Math.floor(oldY / 32) == Math.floor(me.posy / 32) && tankObj.bot == true || bricksArr[Math.floor(oldX / 32)][Math.floor(oldY / 32)] == 1) {
       console.log('u ded');
+      bricksArr[Math.floor(oldX / 32)][Math.floor(oldY / 32)] = 0;
+      ctx.clearRect(Math.floor(oldX / 32)*32, Math.floor(oldY / 32)*32, 32, 32);
+      //drawBricks();
       ctx.drawImage(sbe, 32, 64, 32, 32, shootPointX + displacementX + dx, shootPointY + displacementY + dy, 32, 32);
       oldX = -2;
       oldY = -2;
@@ -284,5 +317,3 @@ function tankShoot(tankObj, speed) {
   }
   nextFrame();
 }
-
-function drawBrick(gridx, gridy) {}
