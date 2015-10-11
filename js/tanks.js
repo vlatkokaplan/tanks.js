@@ -125,14 +125,12 @@ var tank = function() {
     bricksArr[this.startx + 1][this.starty] = 0;
     bricksArr[this.startx + 1][this.starty - 1] = 0;
     bricksArr[this.startx - 1][this.starty + 1] = 0;
-    bricksArr[0][0] = 0;
     if (this.bot == true) {
       this.moveRand();
     }
   }
   this.moveRand = function() {
     var changeDir = Math.round(Math.random() * 2);
-    var rndDirection = Math.round(Math.random() * this.randomness);
     var exclude = '';
     this.dirsEx = dirs;
     if (this.posy - 32 / 32 <= 0 || bricksArr[((this.posx) / 32)][(this.posy - 32) / 32] == 1) {
@@ -158,7 +156,6 @@ var tank = function() {
     var rndDirection = Math.floor(Math.random() * this.dirsEx.length);
     if (changeDir == 0) {
       this.direction = this.dirsEx[rndDirection];
-      //console.log( (this.posx+32)/32);
     }
     if (this.stop == false) {
       moveTank(this);
@@ -171,6 +168,31 @@ var tank = function() {
     if (randomFire == 5)
       tankShoot(this, 6);
   }
+  this.moveNormal = function() {
+    var exclude = '';
+    this.dirsEx = dirs;
+    if (this.posy - 32 / 32 <= 0 || bricksArr[((this.posx) / 32)][(this.posy - 32) / 32] == 1) {
+      exclude = 'n';
+      this.dirsEx = this.dirsEx.replace(exclude, '');
+    }
+    if ((this.posx + 32) / 32 >= gridx || bricksArr[((this.posx + 32) / 32)][this.posy / 32] == 1) {
+      exclude = 'e';
+      this.dirsEx = this.dirsEx.replace(exclude, '');
+    }
+    if (this.posx - 32 / 32 <= 0 || bricksArr[((this.posx - 32) / 32)][this.posy / 32] == 1) {
+      exclude = 'w';
+      this.dirsEx = this.dirsEx.replace(exclude, '');
+    }
+    if ((this.posy + 32) / 32 >= gridy || bricksArr[((this.posx) / 32)][(this.posy + 32) / 32] == 1) {
+      exclude = 's';
+      this.dirsEx = this.dirsEx.replace(exclude, '');
+    }
+    var rndDirection = Math.floor(Math.random() * this.dirsEx.length);
+    if (this.stop == false) {
+      moveTank(this);
+    }
+  }
+  this.stop = false;
 }
 
 function moveTank(tankObj, speed) {
@@ -240,19 +262,19 @@ document.onkeydown = function(e) {
     switch (e.keyCode) {
       case 38:
         me.direction = 'n';
-        moveTank(me);
+        me.moveNormal();
         break;
       case 40:
         me.direction = 's';
-        moveTank(me);
+        me.moveNormal();
         break;
       case 37:
         me.direction = 'w';
-        moveTank(me);
+        me.moveNormal();
         break;
       case 39:
         me.direction = 'e';
-        moveTank(me);
+        me.moveNormal();
         break;
       case 32:
         tankShoot(me, 6);
@@ -271,31 +293,31 @@ function tankShoot(tankObj, speed) {
   var displacementY;
 
   function nextFrame() {
-    switch(direction) {
+    switch (direction) {
       case 'n':
-      dx = 0;
-      dy = 0 - i;
-      displacementX = 0;
-      displacementY = -11;
-      break;
+        dx = 0;
+        dy = 0 - i;
+        displacementX = 0;
+        displacementY = -11;
+        break;
       case 's':
-      dx = 0;
-      dy = 0 + i;
-      displacementX = 0;
-      displacementY = 11;
-      break;
+        dx = 0;
+        dy = 0 + i;
+        displacementX = 0;
+        displacementY = 11;
+        break;
       case 'e':
-      dx = 0 + i;
-      dy = 0;
-      displacementX = 11;
-      displacementY = 0;
-      break;
+        dx = 0 + i;
+        dy = 0;
+        displacementX = 11;
+        displacementY = 0;
+        break;
       case 'w':
-      dx = 0 - i;
-      dy = 0;
-      displacementX = -11;
-      displacementY = 0;
-      break;
+        dx = 0 - i;
+        dy = 0;
+        displacementX = -11;
+        displacementY = 0;
+        break;
     }
     ctx.drawImage(sbe, 32, 64, 32, 32, oldX + displacementX, oldY + displacementY, 32, 32);
     ctx.drawImage(sbe, 32, 32, 32, 32, shootPointX + displacementX + dx, shootPointY + displacementY + dy, 32, 32);
@@ -304,8 +326,8 @@ function tankShoot(tankObj, speed) {
     i = i + speed;
     if (bricksArr[Math.round(oldX / 32)][Math.round(oldY / 32)] == 1) {
       bricksArr[Math.round(oldX / 32)][Math.round(oldY / 32)] = 0;
-      ctx.clearRect(Math.round(oldX / 32)*32, Math.round(oldY / 32)*32, 32, 32);
-      
+      ctx.clearRect(Math.round(oldX / 32) * 32, Math.round(oldY / 32) * 32, 32, 32);
+
       ctx.drawImage(sbe, 32, 64, 32, 32, shootPointX + displacementX + dx, shootPointY + displacementY + dy, 32, 32);
       oldX = -2;
       oldY = -2;
