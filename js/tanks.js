@@ -3,8 +3,8 @@ var ctx = cte.getContext('2d');
 var sbe = document.getElementById('spriteBuffer');
 var sbx = sbe.getContext('2d');
 //calculating grid dimensions from canvas size; TODO: grid units as variable
-cte.width = document.body.clientWidth
-cte.height = document.body.clientHeight
+cte.width = window.innerWidth;
+cte.height = window.innerHeight;
 var gridx = Math.floor(cte.width / 32);
 var gridy = Math.floor(cte.height / 32);
 //random start position for all tanks; should be removed
@@ -272,46 +272,71 @@ function tankShoot(tankObj, speed) {
   var displacementY;
 
   function nextFrame() {
-    if (direction == 'n') {
+    // if (direction == 'n') {
+    //   dx = 0;
+    //   dy = 0 - i;
+    //   displacementX = 0;
+    //   displacementY = -11;
+    // }
+    // if (direction == 's') {
+    //   dx = 0;
+    //   dy = 0 + i;
+    //   displacementX = 0;
+    //   displacementY = 11;
+    // }
+    // if (direction == 'e') {
+    //   dx = 0 + i;
+    //   dy = 0;
+    //   displacementX = 11;
+    //   displacementY = 0;
+    // }
+    // if (direction == 'w') {
+    //   dx = 0 - i;
+    //   dy = 0;
+    //   displacementX = -11;
+    //   displacementY = 0;
+    // }
+    switch(direction) {
+      case 'n':
       dx = 0;
       dy = 0 - i;
       displacementX = 0;
-      displacementY = -22;
-    }
-    if (direction == 's') {
+      displacementY = -11;
+      break;
+      case 's':
       dx = 0;
       dy = 0 + i;
       displacementX = 0;
-      displacementY = 22;
-    }
-    if (direction == 'e') {
+      displacementY = 11;
+      break;
+      case 'e':
       dx = 0 + i;
       dy = 0;
-      displacementX = 22;
+      displacementX = 11;
       displacementY = 0;
-    }
-    if (direction == 'w') {
+      break;
+      case 'w':
       dx = 0 - i;
       dy = 0;
-      displacementX = -22;
+      displacementX = -11;
       displacementY = 0;
+      break;
     }
     ctx.drawImage(sbe, 32, 64, 32, 32, oldX + displacementX, oldY + displacementY, 32, 32);
     ctx.drawImage(sbe, 32, 32, 32, 32, shootPointX + displacementX + dx, shootPointY + displacementY + dy, 32, 32);
     oldX = shootPointX + dx;
     oldY = shootPointY + dy;
     i = i + speed;
-    if (Math.floor(oldX / 32) == Math.floor(me.posx / 32) && Math.floor(oldY / 32) == Math.floor(me.posy / 32) && tankObj.bot == true || bricksArr[Math.floor(oldX / 32)][Math.floor(oldY / 32)] == 1) {
-      console.log('u ded');
-      bricksArr[Math.floor(oldX / 32)][Math.floor(oldY / 32)] = 0;
-      ctx.clearRect(Math.floor(oldX / 32)*32, Math.floor(oldY / 32)*32, 32, 32);
-      //drawBricks();
+    if (bricksArr[Math.round(oldX / 32)][Math.round(oldY / 32)] == 1) {
+      bricksArr[Math.round(oldX / 32)][Math.round(oldY / 32)] = 0;
+      ctx.clearRect(Math.round(oldX / 32)*32, Math.round(oldY / 32)*32, 32, 32);
+      
       ctx.drawImage(sbe, 32, 64, 32, 32, shootPointX + displacementX + dx, shootPointY + displacementY + dy, 32, 32);
       oldX = -2;
       oldY = -2;
     }
     if (oldY > -1 && oldX > -1 && oldY < gridy * 32 && oldX < gridx * 32) {
-      requestAnimationFrame(nextFrame);
+      setTimeout(nextFrame, 10);
     }
 
   }
