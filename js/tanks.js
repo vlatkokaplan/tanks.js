@@ -220,7 +220,6 @@ function moveTank(tankObj, speed) {
         oldX = tankObj.posx + dx;
         oldY = tankObj.posy + dy;
         i = i + tankObj.speed;
-        // Continue the loop in 3s
         window.requestAnimationFrame(nextFrame);
       } else {
         tankObj.moving = false;
@@ -272,30 +271,6 @@ function tankShoot(tankObj, speed) {
   var displacementY;
 
   function nextFrame() {
-    // if (direction == 'n') {
-    //   dx = 0;
-    //   dy = 0 - i;
-    //   displacementX = 0;
-    //   displacementY = -11;
-    // }
-    // if (direction == 's') {
-    //   dx = 0;
-    //   dy = 0 + i;
-    //   displacementX = 0;
-    //   displacementY = 11;
-    // }
-    // if (direction == 'e') {
-    //   dx = 0 + i;
-    //   dy = 0;
-    //   displacementX = 11;
-    //   displacementY = 0;
-    // }
-    // if (direction == 'w') {
-    //   dx = 0 - i;
-    //   dy = 0;
-    //   displacementX = -11;
-    //   displacementY = 0;
-    // }
     switch(direction) {
       case 'n':
       dx = 0;
