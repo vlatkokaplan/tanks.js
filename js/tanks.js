@@ -170,29 +170,28 @@ var tank = function() {
   }
   this.moveNormal = function() {
     var exclude = '';
-    this.dirsEx = dirs;
+    var dirsEx = dirs;
     if (this.posy - 32 / 32 <= 0 || bricksArr[((this.posx) / 32)][(this.posy - 32) / 32] == 1) {
       exclude = 'n';
-      this.dirsEx = this.dirsEx.replace(exclude, '');
+      dirsEx = dirsEx.replace(exclude, '');
     }
     if ((this.posx + 32) / 32 >= gridx || bricksArr[((this.posx + 32) / 32)][this.posy / 32] == 1) {
       exclude = 'e';
-      this.dirsEx = this.dirsEx.replace(exclude, '');
+      dirsEx = dirsEx.replace(exclude, '');
     }
     if (this.posx - 32 / 32 <= 0 || bricksArr[((this.posx - 32) / 32)][this.posy / 32] == 1) {
       exclude = 'w';
-      this.dirsEx = this.dirsEx.replace(exclude, '');
+      dirsEx = dirsEx.replace(exclude, '');
     }
     if ((this.posy + 32) / 32 >= gridy || bricksArr[((this.posx) / 32)][(this.posy + 32) / 32] == 1) {
       exclude = 's';
-      this.dirsEx = this.dirsEx.replace(exclude, '');
+      dirsEx = dirsEx.replace(exclude, '');
     }
-    var rndDirection = Math.floor(Math.random() * this.dirsEx.length);
-    if (this.stop == false) {
+    console.log(dirsEx);
+    if(dirsEx.indexOf(this.direction) != -1){
       moveTank(this);
     }
   }
-  this.stop = false;
 }
 
 function moveTank(tankObj, speed) {
